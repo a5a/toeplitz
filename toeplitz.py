@@ -6,7 +6,7 @@ DOCTEXT
 import numpy as np
 
 
-def modified_trench(m):
+def toeplitz_inverse(m):
     """
     Computes a fast inverse of a Toeplitz matrix (Alg. 1.1) and
     log det m
@@ -15,7 +15,7 @@ def modified_trench(m):
     """
     c = m[:, 0]
     N = len(c)
-    c_inv = -500 * np.ones((N, N))  # intialising the matrix
+    c_inv = np.zeros((N, N))  # intialising the matrix
     v, l = modified_trench_helper(c)
 
     c_inv[0, :] = v[::-1]
@@ -23,13 +23,14 @@ def modified_trench(m):
     c_inv[-1, :] = v
     c_inv[:, -1] = v
 
-    for ii in xrange(1, int(np.floor((N-1)/2))):
+    for ii in xrange(1, int(np.floor((N-1)/2)+1)):
         for jj in xrange(ii, N - ii):
             c_inv[ii, jj] = (c_inv[ii-1, jj-1]
-                             + (v[N-jj] * v[N-ii] - v[ii] * v[jj]) / v[-1])
+                             + (v[N-jj-1] * v[N-ii-1] - v[ii-1] * v[jj-1])
+                             / v[-1])
             c_inv[jj, ii] = c_inv[ii, jj]
-            c_inv[N-ii, N-jj] = c_inv[ii, jj]
-            c_inv[N-jj, N-ii] = c_inv[ii, jj]
+            c_inv[N-ii-1, N-jj-1] = c_inv[ii, jj]
+            c_inv[N-jj-1, N-ii-1] = c_inv[ii, jj]
 
     return c_inv, l
 
